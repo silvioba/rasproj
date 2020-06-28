@@ -64,10 +64,16 @@ def return_dataset_ready(dataframe, period_measurement, time_interval_start, fea
 
 # PRE:  df: panda, initial data with a 'time' column
 #       feature: str, name of column of y-Axis,
+# POST: returns str
+def name_htmldiv(dataframe,feature):
+
+
+# PRE:  dataframe: panda, initial data with a 'time' column
+#       feature: str, name of column of y-Axis,
 # POST: returns panda with data
-def graph_single_data(dataframe,feature):
+def output_htmldiv_single_graph(dataframe,feature,name):
     fig = px.line(dataframe, x="Date_time", y=feature, title='Temperature')
-    fig.write_html('first_figure.html', auto_open=False)
+    fig.write_html(file=name, include_plotlyjs='plotly.js',full_html=False, auto_open=False)
 
 '''
 # Import data
