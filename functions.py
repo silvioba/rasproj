@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 import plotly.express as px
+import os
 
 
 ############################################
@@ -9,7 +10,7 @@ import plotly.express as px
 ############################################
 # Data files are separated by date with name as given by file_name function
 # the format of the csv file is the following:
-# Unix_Timestamp, Temperature1,
+# header_files = ['d_m_Y_H_M_S', 'Temperature1', 'Temperature2']
 
 
 ############################################
@@ -70,7 +71,7 @@ def return_dataset_ready(dataframe, period_measurement, time_interval_start, fea
 def name_htmldiv_single_graph(dataframe, feature):
     starttsp = int(datetime.timestamp(dataframe.Date_time.iloc[0]))
     endtsp = int(datetime.timestamp(dataframe.Date_time.iloc[-1]))
-    name = 'graphs_html_prep/html_div' + feature + '_' + str(starttsp) + '_to_' + str(endtsp) + '.html'
+    name = 'html_prep/html_div' + feature + '_' + str(starttsp) + '_to_' + str(endtsp) + '.html'
     return name
 
 
@@ -93,11 +94,46 @@ def create_html_page(name, *names_graphs):
         # open header in read mode and write in output
         with open('basepage_top.html', 'r') as header:
             outputfile.write(header.read())
+        with open('last_measured_data.html', 'r') as lmd:
+            outputfile.write(lmd.read())
         for graph_name in names_graphs:
             with open(graph_name, 'r') as graph:
                 outputfile.write(graph.read())
         with open('basepage_bottom.html', 'r') as bottom:
             outputfile.write(bottom.read())
+
+
+############################################
+# Other HTML code
+############################################
+
+def generate_html_code_last_measured_data():
+    # searches for most recent datafile
+    lastdate = datetime.now()
+    while not os.path.exists(file_name(lastdate)):
+        lastdate = lastdate + timedelta(days=-1)
+    df = import_data(lastdate, lastdate)
+    datapoint = df.iloc[-1]
+    print(datapoint)
+    with open('last_measured_data.html', 'w') as outputfile:
+        outputfile.write("<h2>Last measured data</h2>\n"
+                         '<p style="text-align:center">Last measured data was: </p>\n')
+        outputfile.write('<p style="text-align:center;font-size:20px">\n')
+        outputfile.write(datapoint['Date_time'].strftime("%d.%m.%Y %H:%M:%S"))
+        outputfile.write(
+            '</p> \n <p style="text-align:center"> (Updated: ' + datetime.now().strftime("%d.%m.%Y %H:%M:%S") + ')</p>')
+        outputfile.write('<table style="width:50%" class="center">'
+                         '<tr>'
+                         )
+        for col in datapoint.index[1:]:
+            outputfile.write('<th>' + str(col) + '</th>')
+
+        outputfile.write('</tr>'
+                         '<tr>')
+        for value in datapoint.tolist()[1:]:
+            outputfile.write('<td>' + str(value) + '</td>')
+        outputfile.write('</tr>'
+                         '</table>')
 
 
 '''
