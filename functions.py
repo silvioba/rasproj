@@ -26,15 +26,16 @@ def file_name(date):
 
 # PRE:  features: list of strings
 #       day_start: datetime, first day of imported data
-#       day_end: datetime, last day of imported data,
+#       day_end: datetime, last day of imported data
+#       reduced: bool, reduces to 1/windows the amout of data using function method
+#       window,function: see *apply_function_dataframe*,
 # POST: returns panda with data
-def import_data(day_start, day_end):
+def import_data(day_start, day_end, reduced=False, window=6, function='mean'):
     delta_days = day_end - day_start
     interval_days = []
     for d in range(delta_days.days + 1):
         interval_days.append(day_start + timedelta(days=d))
     # Create list of file names
-    print(interval_days)
     file_names = []
     for day in interval_days:
         file_names.append(file_name(day))
@@ -49,6 +50,8 @@ def import_data(day_start, day_end):
     # Convert times stamp to datetime format
     df = df.rename(columns={"d_m_Y_H_M_S": "Date_time"})
     df.Date_time = pd.to_datetime(df.Date_time, format="%d_%m_%Y_%H_%M_%S")
+    if reduced:
+        df = apply_function_dataframe(df, window, function)
     return df
 
 
@@ -59,6 +62,22 @@ def import_data(day_start, day_end):
 # POST: returns panda with data
 def return_dataset_ready(dataframe, period_measurement, time_interval_start, features):
     return dataframe[features].tail(int(1 / float(period_measurement) * time_interval_start))
+
+
+# PRE:  dataframe: panda
+#       function, str: currently supported: mean,min,max
+#       rowgroupby, int: nr of rows on which take function
+# POST: returns new dataframe with reduced data applying function to rowgroupby rows
+def apply_function_dataframe(dataframe, window, function):
+    if function == 'mean':
+        dataframe.rolling(window, on='Date_time').mean()
+        return dataframe.iloc[::window, :]
+    if function == 'max':
+        dataframe.rolling(window, on='Date_time').max()
+        return dataframe.iloc[::window, :]
+    if function == 'min':
+        dataframe.rolling(window, on='Date_time').min()
+        return dataframe.iloc[::window, :]
 
 
 ############################################
@@ -114,7 +133,6 @@ def generate_html_code_last_measured_data():
         lastdate = lastdate + timedelta(days=-1)
     df = import_data(lastdate, lastdate)
     datapoint = df.iloc[-1]
-    print(datapoint)
     with open('last_measured_data.html', 'w') as outputfile:
         outputfile.write('<section> \n'
                          '<div class="container">\n'
@@ -142,7 +160,8 @@ def generate_html_code_last_measured_data():
                          '</section>'
                          )
 
-def return_text_section(section_title,heading_nr, body_text):
+
+def return_text_section(section_title, heading_nr, body_text):
     text = '<section> \n' \
            '<div class="container">\n' \
            '<div class="p-5">' \
@@ -154,6 +173,7 @@ def return_text_section(section_title,heading_nr, body_text):
             '</div>' \
             '</section>'
     return text
+
 
 '''
 # Import data
