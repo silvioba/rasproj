@@ -115,6 +115,7 @@ def create_html_page(name, *names_graphs):
             outputfile.write(header.read())
         with open('last_measured_data.html', 'r') as lmd:
             outputfile.write(lmd.read())
+        outputfile.write(return_text_section('Graphs', '1', 'Here we disply some graphs about recent data.',id_bool=True,id='graphs'))
         for graph_name in names_graphs:
             with open(graph_name, 'r') as graph:
                 outputfile.write(graph.read())
@@ -135,7 +136,7 @@ def generate_html_code_last_measured_data():
     datapoint = df.iloc[-1]
     with open('last_measured_data.html', 'w') as outputfile:
         outputfile.write('<section> \n'
-                         '<div class="container">\n'
+                         '<div class="container" id="lastdata">\n'
                          '<div class="p-5">'
                          '<h1> Last measured data </h1>'
                          '<p style="text-align:center">Last measured data was: </p>\n')
@@ -161,11 +162,14 @@ def generate_html_code_last_measured_data():
                          )
 
 
-def return_text_section(section_title, heading_nr, body_text):
-    text = '<section> \n' \
-           '<div class="container">\n' \
-           '<div class="p-5">' \
-           '<div class="row align-items-center">\n'
+def return_text_section(section_title, heading_nr, body_text, id_bool=False, id=''):
+    text = '<section> \n'
+    if id_bool:
+        text += '<div class="container" id="' + id + '">\n'
+    else:
+        text += '<div class="container">\n'
+    text += '<div class="row align-items-center">\n' \
+            '<div class="p-5">'
     text += '<h' + str(heading_nr) + '>' + section_title + '</h' + str(heading_nr) + '>'
     text += '<p>' + body_text + '</p>'
     text += '</div>' \
