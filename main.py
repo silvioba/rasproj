@@ -9,7 +9,7 @@ fn.generate_html_code_last_measured_data()
 fn.output_htmldiv_single_graph(df, 'Temperature1')
 fn.output_htmldiv_single_graph(df, 'Temperature2')
 
-fn.create_html_page('html_output/test_123.html',
+fn.create_html_page('html_output/index.html',
                     fn.name_htmldiv_single_graph(df, 'Temperature1'),
                     fn.name_htmldiv_single_graph(df, 'Temperature2')
                     )

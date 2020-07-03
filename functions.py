@@ -116,7 +116,10 @@ def generate_html_code_last_measured_data():
     datapoint = df.iloc[-1]
     print(datapoint)
     with open('last_measured_data.html', 'w') as outputfile:
-        outputfile.write("<h2>Last measured data</h2>\n"
+        outputfile.write('<section> \n'
+                         '<div class="container">\n'
+                         '<div class="p-5">'
+                         '<h1> Last measured data </h1>'
                          '<p style="text-align:center">Last measured data was: </p>\n')
         outputfile.write('<p style="text-align:center;font-size:20px">\n')
         outputfile.write(datapoint['Date_time'].strftime("%d.%m.%Y %H:%M:%S"))
@@ -133,8 +136,24 @@ def generate_html_code_last_measured_data():
         for value in datapoint.tolist()[1:]:
             outputfile.write('<td>' + str(value) + '</td>')
         outputfile.write('</tr>'
-                         '</table>')
+                         '</table>\n'
+                         '</div>'
+                         '</div>'
+                         '</section>'
+                         )
 
+def return_text_section(section_title,heading_nr, body_text):
+    text = '<section> \n' \
+           '<div class="container">\n' \
+           '<div class="p-5">' \
+           '<div class="row align-items-center">\n'
+    text += '<h' + str(heading_nr) + '>' + section_title + '</h' + str(heading_nr) + '>'
+    text += '<p>' + body_text + '</p>'
+    text += '</div>' \
+            '</div>' \
+            '</div>' \
+            '</section>'
+    return text
 
 '''
 # Import data
